@@ -3,9 +3,9 @@ package com.jp.parkapi.web.controller;
 import com.jp.parkapi.entities.User;
 import com.jp.parkapi.services.UserService;
 import com.jp.parkapi.web.dto.UserCreateDTO;
+import com.jp.parkapi.web.dto.UserPasswordDTO;
 import com.jp.parkapi.web.dto.UserResponseDTO;
 import com.jp.parkapi.web.dto.mapper.UserMapper;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +23,11 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDTO> insertUser(@RequestBody UserCreateDTO userCreateDTO) {
         User result = userService.insertUser(UserMapper.toUser(userCreateDTO));
+        /*User user = new User();
+        user.setUsername(userCreateDTO.getUsername());
+        user.setPassword(userCreateDTO.getPassword());
+        userService.insertUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponseDTO(user));*/
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(result));
     }
 
@@ -33,13 +38,14 @@ public class UserController {
     }
 
     @PatchMapping(value = "/{id}") //atualização parcial (PUT -> atualização total, porpem pode usar o PUT para atualização parcial também)
-    public ResponseEntity<User> updatePassword(@PathVariable Long id, @RequestBody User user) { //senha será enviada no corpo da requisição e não como parâmetro da url
-        return ResponseEntity.ok(userService.updatePassword(id, user.getPassword()));
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UserPasswordDTO userPasswordDTO) { //senha será enviada no corpo da requisição e não como parâmetro da url
+        User result = (userService.updatePassword(id, userPasswordDTO.getSenhaAtual(), userPasswordDTO.getNovaSenha(), userPasswordDTO.getConfirmaSenha()));
+        return ResponseEntity.noContent().build(); //retornando No content, pois nesse caso não é necessário retornar o response dto com os valores
     }
 
     @GetMapping
-    public ResponseEntity<Page<User>> findAllUsers(Pageable pageable) {
+    public ResponseEntity<Page<UserResponseDTO>> findAllUsers(Pageable pageable) {
         Page<User> result = userService.findAllUsersPaged(pageable);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(UserMapper.toDtoPage(result));
     }
 }

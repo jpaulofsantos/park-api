@@ -1,5 +1,6 @@
 package com.jp.parkapi.web.dto;
 
+import com.jp.parkapi.entities.User;
 import lombok.*;
 
 @Getter

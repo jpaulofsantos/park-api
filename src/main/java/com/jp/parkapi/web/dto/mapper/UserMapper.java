@@ -5,6 +5,7 @@ import com.jp.parkapi.web.dto.UserCreateDTO;
 import com.jp.parkapi.web.dto.UserResponseDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.springframework.data.domain.Page;
 
 public class UserMapper {
 
@@ -25,5 +26,9 @@ public class UserMapper {
         modelMapper.addMappings(props);
 
         return modelMapper.map(user, UserResponseDTO.class);
+    }
+
+    public static Page<UserResponseDTO> toDtoPage(Page<User> userPage) {
+        return userPage.map(user -> toDto(user));
     }
 }
