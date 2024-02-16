@@ -1,8 +1,11 @@
 package com.jp.parkapi.services;
 
 import com.jp.parkapi.entities.User;
+import com.jp.parkapi.exception.EntityNotFoundException;
+import com.jp.parkapi.exception.UserNameUniqueViolationException;
 import com.jp.parkapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,14 +19,17 @@ public class UserService {
 
     @Transactional
     public User insertUser(User user) {
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserNameUniqueViolationException(String.format("Username {%s} ja cadastrado", user.getUsername()));
+        }
     }
 
     @Transactional(readOnly = true)
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Usuário não encontrado.")
-        );
+                () -> new EntityNotFoundException(String.format("Usuário id {%s} não encontrado.", id)));
     }
     @Transactional
     public User updatePassword(Long id, String senhaAtual, String novaSenha, String confirmaSenha) {
