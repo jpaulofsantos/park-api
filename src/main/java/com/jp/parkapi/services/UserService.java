@@ -2,6 +2,7 @@ package com.jp.parkapi.services;
 
 import com.jp.parkapi.entities.User;
 import com.jp.parkapi.exception.EntityNotFoundException;
+import com.jp.parkapi.exception.PasswordInvalidException;
 import com.jp.parkapi.exception.UserNameUniqueViolationException;
 import com.jp.parkapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,12 @@ public class UserService {
     @Transactional
     public User updatePassword(Long id, String senhaAtual, String novaSenha, String confirmaSenha) {
         if (!novaSenha.equals(confirmaSenha)) {
-            throw new RuntimeException("Nova senha é diferente da confirmação da senha");
+            throw new PasswordInvalidException(String.format("Nova senha é diferente da confirmação da senha"));
         }
 
         User user = findById(id);
         if (!senhaAtual.equals(user.getPassword())) {
-            throw new RuntimeException("Senha atual informada é inválida");
+            throw new PasswordInvalidException(String.format("Senha atual informada é inválida"));
         }
         user.setPassword(novaSenha);
         userRepository.save(user);
