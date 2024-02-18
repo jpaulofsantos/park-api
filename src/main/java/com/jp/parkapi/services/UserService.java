@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -50,5 +52,16 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<User> findAllUsersPaged(Pageable pageable) {
         return userRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Username {%s} não encontrado.", username)));
+    }
+
+    @Transactional(readOnly = true)
+    public User.Role findRoleByUsername(String username) {
+        return userRepository.findRoleByUsername(username);
     }
 }
