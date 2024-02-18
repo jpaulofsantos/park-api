@@ -1,6 +1,7 @@
 package com.jp.parkapi;
 
 import com.jp.parkapi.web.dto.UserCreateDTO;
+import com.jp.parkapi.web.dto.UserPasswordDTO;
 import com.jp.parkapi.web.dto.UserResponseDTO;
 import com.jp.parkapi.web.exception.ErrorMessage;
 import org.assertj.core.api.Assertions;
@@ -145,9 +146,22 @@ public class UserIT {
     }
 
     @Test
-    public void findUserWithNonExistingIdReturnStatus404() {
-        ErrorMessage responseBody = testClient.get()
+    public void updateUserPasswordWithCorrectParametersForCurrentPasswordAndNewPasswordAndConfirmPassWordReturnStatus204() {
+        testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
+                .exchange()
+                .expectStatus().isNoContent();
+
+    }
+
+    @Test
+    public void updateUserPasswordWithNonExistingIdReturnStatus404() {
+        ErrorMessage responseBody = testClient.patch()
                 .uri("/api/v1/users/99")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorMessage.class)
@@ -155,5 +169,74 @@ public class UserIT {
 
         Assertions.assertThat(responseBody).isNotNull();
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+
+    }
+
+    @Test
+    public void updateUserPasswordWithExistingIdAndIncorrectParametersForCurrentPasswordReturnStatus422() {
+        ErrorMessage responseBody = testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("", "", ""))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123", "123"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("1234567", "1237777", "1237777"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+    }
+
+    @Test
+    public void updateUserPasswordWithExistingIdAndPasswordDoesNotMatchReturnStatus400() {
+        ErrorMessage responseBody = testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123457", "123458"))
+                .exchange()
+                .expectStatus().isEqualTo(400)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
+
+        responseBody = testClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123459", "123457", "123457"))
+                .exchange()
+                .expectStatus().isEqualTo(400)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
+
     }
 }
