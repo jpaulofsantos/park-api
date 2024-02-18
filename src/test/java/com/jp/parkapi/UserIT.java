@@ -1,5 +1,6 @@
 package com.jp.parkapi;
 
+import com.jp.parkapi.web.dto.CustomPageImpl;
 import com.jp.parkapi.web.dto.UserCreateDTO;
 import com.jp.parkapi.web.dto.UserPasswordDTO;
 import com.jp.parkapi.web.dto.UserResponseDTO;
@@ -8,9 +9,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/users/users.insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -238,5 +243,20 @@ public class UserIT {
         Assertions.assertThat(responseBody).isNotNull();
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
 
+    }
+
+    @Test
+    public void findAllUsersPagedAndReturnStatus200() {
+
+        Page<UserResponseDTO> responseEntity = testClient.get()
+                .uri("/api/v1/users")
+                .exchange().expectStatus()
+                .isOk()
+                .expectBody(new ParameterizedTypeReference<CustomPageImpl>() {})
+                .returnResult()
+                .getResponseBody();
+
+        Assertions.assertThat(responseEntity).isNotNull();
+        Assertions.assertThat(responseEntity.getTotalElements()).isEqualTo(10);
     }
 }
