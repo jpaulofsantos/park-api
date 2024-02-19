@@ -28,7 +28,7 @@ public class AuthenticationController {
 
     @PostMapping("/auth")
     public ResponseEntity<?> authenticate(@RequestBody @Valid UserLoginDTO userLoginDTO, HttpServletRequest httpServletRequest) {
-        log.info("Processo de autenticação pelo login %s", userLoginDTO.getUsername());
+        log.info("Processo de autenticação pelo login {}", userLoginDTO.getUsername());
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userLoginDTO.getUsername(), userLoginDTO.getPassword());
@@ -38,7 +38,7 @@ public class AuthenticationController {
             return ResponseEntity.ok(token);
 
         } catch (AuthenticationException e) {
-            log.warn("Bad credentials from username %s", userLoginDTO.getUsername());
+            log.warn("Bad credentials from username {}", userLoginDTO.getUsername());
         }
         return ResponseEntity.badRequest().body(new ErrorMessage(httpServletRequest, HttpStatus.BAD_REQUEST, "Credenciais inválidas"));
     }

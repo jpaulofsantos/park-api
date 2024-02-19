@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,13 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional
     public User insertUser(User user) {
         try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new UserNameUniqueViolationException(String.format("Username {%s} ja cadastrado", user.getUsername()));
@@ -41,10 +46,10 @@ public class UserService {
         }
 
         User user = findById(id);
-        if (!senhaAtual.equals(user.getPassword())) {
+        if (!passwordEncoder.matches(senhaAtual, user.getPassword())) {
             throw new PasswordInvalidException(String.format("Senha atual informada é inválida"));
         }
-        user.setPassword(novaSenha);
+        user.setPassword(passwordEncoder.encode(novaSenha));
         userRepository.save(user);
         return user;
     }
