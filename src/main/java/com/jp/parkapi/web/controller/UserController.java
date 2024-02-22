@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Users", description = "Contém as operações relativas aos recursos de cadastro, inserção e leitura de um usuário.")
@@ -54,6 +55,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN') OR (hasRole('CLIENT') AND #id == authentication.principal.id)") //user admin autenticado consegue chamar esse metodo e ver os demais ids. Ja o CLIENT somente o proprio id.
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         User result = userService.findById(id);
         return ResponseEntity.ok(UserMapper.toDto(result));
@@ -70,6 +72,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PatchMapping(value = "/{id}") //atualização parcial (PUT -> atualização total, porpem pode usar o PUT para atualização parcial também)
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT') AND (#id == authentication.principal.id)")
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDTO userPasswordDTO) { //senha será enviada no corpo da requisição e não como parâmetro da url
         User result = (userService.updatePassword(id, userPasswordDTO.getSenhaAtual(), userPasswordDTO.getNovaSenha(), userPasswordDTO.getConfirmaSenha()));
         return ResponseEntity.noContent().build(); //retornando No content, pois nesse caso não é necessário retornar o response dto com os valores
@@ -80,6 +83,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class)))
     })
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDTO>> findAllUsers(Pageable pageable) {
         Page<User> result = userService.findAllUsersPaged(pageable);
         return ResponseEntity.ok(UserMapper.toDtoPage(result));

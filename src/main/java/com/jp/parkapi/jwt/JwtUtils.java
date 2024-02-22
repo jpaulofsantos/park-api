@@ -24,13 +24,14 @@ public class JwtUtils {
     public static final String SECRET_KEY = "0123456789-0123456789-0123456789";
     public static final long EXPIRE_DAYS = 0;
     public static final long EXPIRE_HOURS = 0;
-    public static final long EXPIRE_MINUTES = 5;
+    public static final long EXPIRE_MINUTES = 30;
 
     private JwtUtils() {
 
     }
 
     private static Key generateKey() {
+
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -69,6 +70,7 @@ public class JwtUtils {
     }
 
     public static String getUsernameFromToken (String token) {
+
         return getClaimsFromToken(token).getSubject();
     }
 

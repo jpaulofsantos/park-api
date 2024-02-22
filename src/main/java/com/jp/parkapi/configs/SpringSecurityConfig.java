@@ -1,5 +1,6 @@
 package com.jp.parkapi.configs;
 
+import com.jp.parkapi.jwt.JwtAutheticationEntryPoint;
 import com.jp.parkapi.jwt.JwtAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableMethodSecurity
 @EnableWebMvc
 @Configuration
-
-
 public class SpringSecurityConfig {
 
     @Bean
@@ -37,9 +36,8 @@ public class SpringSecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).addFilterBefore(
                         jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
-                )
+                ).exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAutheticationEntryPoint())) //exception quando o usuário não estiver logado
                 .build();
-
     }
 
     @Bean
