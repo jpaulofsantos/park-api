@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +49,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(result));
     }
 
-    @Operation(summary = "Recuperar um usuário pelo ID", description = "Recurso para recuperar um usuário pelo ID", responses = {
+    @Operation(summary = "Recuperar um usuário pelo ID",
+            security = @SecurityRequirement(name = "security"),
+            description = "Recurso para recuperar um usuário pelo ID", responses = {
             @ApiResponse(responseCode = "200", description = "Recurso recuperado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @GetMapping(value = "/{id}")
@@ -61,7 +66,9 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toDto(result));
     }
 
-    @Operation(summary = "Atualizar senha", description = "Recurso para atualização de senha", responses = {
+    @Operation(summary = "Atualizar senha",
+            security = @SecurityRequirement(name = "security"),
+            description = "Recurso para atualização de senha", responses = {
             @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
@@ -69,6 +76,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Senha não confere",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Campos inválidos ou mal formatados",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PatchMapping(value = "/{id}") //atualização parcial (PUT -> atualização total, porpem pode usar o PUT para atualização parcial também)
@@ -78,9 +87,13 @@ public class UserController {
         return ResponseEntity.noContent().build(); //retornando No content, pois nesse caso não é necessário retornar o response dto com os valores
     }
 
-    @Operation(summary = "Recuperar todos os usuários com paginação", description = "Recurso para recuperar todos os usuários com paginação", responses = {
+    @Operation(summary = "Recuperar todos os usuários com paginação",
+            security = @SecurityRequirement(name = "security"), //security na classe SpringDocOpenApiConfig
+            description = "Recurso para recuperar todos os usuários com paginação", responses = {
             @ApiResponse(responseCode = "200", description = "Recursos recuperados com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
