@@ -22,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 public class SpringSecurityConfig {
 
-    private static final String[] DOCUMENTATION_OPENAPI = {
+    private static final String[] DOCUMENTATION_OPENAPI = { //permission urls [] .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
             "/docs/index.html",
             "/docs-park.html", "/docs-park/**",
             "/v3/api-docs/**",

@@ -138,16 +138,73 @@ public class UserIT {
     @Test
     public void findUserWithExistingIdReturnStatus200() {
         UserResponseDTO responseBody = testClient.get()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/99")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserResponseDTO.class)
                 .returnResult().getResponseBody();
 
         Assertions.assertThat(responseBody).isNotNull();
-        Assertions.assertThat(responseBody.getId()).isEqualTo(100);
-        Assertions.assertThat(responseBody.getUsername()).isEqualTo("teste20@gmail.com");
+        Assertions.assertThat(responseBody.getId()).isEqualTo(99);
+        Assertions.assertThat(responseBody.getUsername()).isEqualTo("admin@gmail.com");
         Assertions.assertThat(responseBody.getRole()).isEqualTo("ADMIN");
+
+        responseBody = testClient.get()
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserResponseDTO.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getId()).isEqualTo(101);
+        Assertions.assertThat(responseBody.getUsername()).isEqualTo("teste21@gmail.com");
+        Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENT");
+
+        responseBody = testClient.get()
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserResponseDTO.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getId()).isEqualTo(101);
+        Assertions.assertThat(responseBody.getUsername()).isEqualTo("teste21@gmail.com");
+        Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENT");
+    }
+
+    @Test
+    public void findUserWithNonExistingIdReturnStatus404() {
+        ErrorMessage responseBody = testClient.get()
+                .uri("/api/v1/users/10")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+
+    }
+
+    @Test
+    public void findUserWithUserSearchingForAnotherUserWithExistingIdReturnStatus403() {
+        ErrorMessage responseBody = testClient.get()
+                .uri("/api/v1/users/102")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
+
     }
 
     @Test

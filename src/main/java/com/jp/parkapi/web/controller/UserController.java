@@ -49,9 +49,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(result));
     }
 
-    @Operation(summary = "Recuperar um usuário pelo ID",
+    @Operation(summary = "Recurso para recuperar um usuário pelo ID",
             security = @SecurityRequirement(name = "security"),
-            description = "Recurso para recuperar um usuário pelo ID", responses = {
+            description = "Requisição exige um Bearer Token. Acesso restrito a ADMIN/CLIENT", responses = {
             @ApiResponse(responseCode = "200", description = "Recurso recuperado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
@@ -68,7 +68,7 @@ public class UserController {
 
     @Operation(summary = "Atualizar senha",
             security = @SecurityRequirement(name = "security"),
-            description = "Recurso para atualização de senha", responses = {
+            description = "Requisição exige um Bearer Token. Acesso restrito a ADMIN/CLIENT", responses = {
             @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
@@ -89,7 +89,7 @@ public class UserController {
 
     @Operation(summary = "Recuperar todos os usuários com paginação",
             security = @SecurityRequirement(name = "security"), //security na classe SpringDocOpenApiConfig
-            description = "Recurso para recuperar todos os usuários com paginação", responses = {
+            description = "Requisição exige um Bearer Token. Acesso restrito a ADMIN", responses = {
             @ApiResponse(responseCode = "200", description = "Recursos recuperados com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
