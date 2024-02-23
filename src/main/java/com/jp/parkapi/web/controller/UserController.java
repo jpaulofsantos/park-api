@@ -69,10 +69,7 @@ public class UserController {
     @Operation(summary = "Atualizar senha",
             security = @SecurityRequirement(name = "security"),
             description = "Requisição exige um Bearer Token. Acesso restrito a ADMIN/CLIENT", responses = {
-            @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
-            @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Senha não confere",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Campos inválidos ou mal formatados",
@@ -83,7 +80,7 @@ public class UserController {
     @PatchMapping(value = "/{id}") //atualização parcial (PUT -> atualização total, porpem pode usar o PUT para atualização parcial também)
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT') AND (#id == authentication.principal.id)")
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDTO userPasswordDTO) { //senha será enviada no corpo da requisição e não como parâmetro da url
-        User result = (userService.updatePassword(id, userPasswordDTO.getSenhaAtual(), userPasswordDTO.getNovaSenha(), userPasswordDTO.getConfirmaSenha()));
+        userService.updatePassword(id, userPasswordDTO.getSenhaAtual(), userPasswordDTO.getNovaSenha(), userPasswordDTO.getConfirmaSenha());
         return ResponseEntity.noContent().build(); //retornando No content, pois nesse caso não é necessário retornar o response dto com os valores
     }
 

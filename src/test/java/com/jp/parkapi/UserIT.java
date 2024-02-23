@@ -210,34 +210,57 @@ public class UserIT {
     @Test
     public void updateUserPasswordWithCorrectParametersForCurrentPasswordAndNewPasswordAndConfirmPassWordReturnStatus204() {
         testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
                 .exchange()
                 .expectStatus().isNoContent();
 
-    }
-
-    @Test
-    public void updateUserPasswordWithNonExistingIdReturnStatus404() {
-        ErrorMessage responseBody = testClient.patch()
+        testClient.patch()
                 .uri("/api/v1/users/99")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
                 .exchange()
-                .expectStatus().isNotFound()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void updateUserPasswordWithDifferentUsersIdsReturnStatus403() {
+        ErrorMessage responseBody = testClient.patch()
+                .uri("/api/v1/users/50")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
+                .exchange()
+                .expectStatus().isForbidden()
                 .expectBody(ErrorMessage.class)
                 .returnResult().getResponseBody();
 
         Assertions.assertThat(responseBody).isNotNull();
-        Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
+
+        responseBody = testClient.patch()
+                .uri("/api/v1/users/50")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDTO("123456", "123457", "123457"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
 
     }
 
     @Test
     public void updateUserPasswordWithExistingIdAndIncorrectParametersForCurrentPasswordReturnStatus422() {
         ErrorMessage responseBody = testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("", "", ""))
                 .exchange()
@@ -249,7 +272,8 @@ public class UserIT {
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
 
         responseBody = testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("123456", "123", "123"))
                 .exchange()
@@ -261,7 +285,8 @@ public class UserIT {
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
 
         responseBody = testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("1234567", "1237777", "1237777"))
                 .exchange()
@@ -277,7 +302,8 @@ public class UserIT {
     @Test
     public void updateUserPasswordWithExistingIdAndPasswordDoesNotMatchReturnStatus400() {
         ErrorMessage responseBody = testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("123456", "123457", "123458"))
                 .exchange()
@@ -289,7 +315,8 @@ public class UserIT {
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
 
         responseBody = testClient.patch()
-                .uri("/api/v1/users/100")
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserPasswordDTO("123459", "123457", "123457"))
                 .exchange()
@@ -307,6 +334,7 @@ public class UserIT {
 
         Page<UserResponseDTO> responseEntity = testClient.get()
                 .uri("/api/v1/users")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"admin@gmail.com", "123456"))
                 .exchange().expectStatus()
                 .isOk()
                 .expectBody(new ParameterizedTypeReference<CustomPageImpl>() {})
@@ -314,6 +342,22 @@ public class UserIT {
                 .getResponseBody();
 
         Assertions.assertThat(responseEntity).isNotNull();
-        Assertions.assertThat(responseEntity.getTotalElements()).isEqualTo(10);
+        Assertions.assertThat(responseEntity.getTotalElements()).isEqualTo(11);
+    }
+
+    @Test
+    public void findAllUsersPagedAndReturnStatus403() {
+
+        ErrorMessage responseEntity = testClient.get()
+                .uri("/api/v1/users")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient,"teste21@gmail.com", "123456"))
+                .exchange().expectStatus()
+                .isForbidden()
+                .expectBody(new ParameterizedTypeReference<ErrorMessage>() {})
+                .returnResult()
+                .getResponseBody();
+
+        Assertions.assertThat(responseEntity).isNotNull();
+        Assertions.assertThat(responseEntity.getStatus()).isEqualTo(403);
     }
 }
