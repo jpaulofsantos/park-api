@@ -25,7 +25,7 @@ public class ClientService {
         try {
             return clientRepository.save(client);
         } catch (DataIntegrityViolationException e) {
-            throw new CpfUniqueViolationException(String.format("Usuário '%s' já cadastrado.", client.getCpf()));
+            throw new CpfUniqueViolationException(String.format("Usuário '%s' já cadastrado.", client.getUser().getUsername()));
         }
     }
 
@@ -38,5 +38,10 @@ public class ClientService {
     @Transactional(readOnly = true)
     public Page<ClientProjection> findAllClients(Pageable pageable) {
         return clientRepository.findAllPageable(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Client findClientByUserId(Long id) {
+        return clientRepository.findByUserId(id);
     }
 }
