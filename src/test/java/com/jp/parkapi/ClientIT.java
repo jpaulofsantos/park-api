@@ -1,9 +1,6 @@
 package com.jp.parkapi;
 
-import com.jp.parkapi.web.dto.ClientCreateDTO;
-import com.jp.parkapi.web.dto.ClientResponseDTO;
-import com.jp.parkapi.web.dto.UserCreateDTO;
-import com.jp.parkapi.web.dto.UserResponseDTO;
+import com.jp.parkapi.web.dto.*;
 import com.jp.parkapi.web.exception.ErrorMessage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -135,7 +132,7 @@ public class ClientIT {
                 .uri("/api/v1/clients/2")
                 .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"teste21@gmail.com", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(403)
+                .expectStatus().isForbidden()
                 .expectBody(ErrorMessage.class)
                 .returnResult().getResponseBody();
 
@@ -155,5 +152,46 @@ public class ClientIT {
 
         Assertions.assertThat(responseBody).isNotNull();
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void findAllClientsPageableReturnStatus200() {
+        PageableDTO responseBody = webTestClient.get()
+                .uri("/api/v1/clients")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PageableDTO.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getNumberOfElements()).isEqualTo(2);
+        Assertions.assertThat(responseBody.getNumber()).isEqualTo(0);
+
+        responseBody = webTestClient.get()
+                .uri("/api/v1/clients?size=1&page=1")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PageableDTO.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getNumberOfElements()).isEqualTo(1);
+        Assertions.assertThat(responseBody.getNumber()).isEqualTo(1);
+    }
+
+    @Test
+    public void findAllClientsPageableReturnStatus403() {
+        ErrorMessage responseBody = webTestClient.get()
+                .uri("/api/v1/clients")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"teste21@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
     }
 }
