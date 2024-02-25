@@ -53,6 +53,9 @@ public class User implements Serializable {
     @Column(name = "modificated_by")
     private String modificatedBy;
 
+    @OneToOne
+    private Client client;
+
 
     public enum Role {
         ROLE_ADMIN,

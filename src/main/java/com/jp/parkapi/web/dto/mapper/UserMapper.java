@@ -29,7 +29,6 @@ public class UserMapper {
     }
 
     public static Page<UserResponseDTO> toDtoPage(Page<User> userPage) {
-
         return userPage.map(user -> toDto(user));
     }
 }

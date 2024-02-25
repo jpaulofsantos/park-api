@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Autenticação", description = "Recurso para realizar a autenticação na API")
+@Tag(name = "Authentication", description = "Recurso para realizar a autenticação na API")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
