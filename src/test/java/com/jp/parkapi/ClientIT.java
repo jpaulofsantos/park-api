@@ -112,4 +112,48 @@ public class ClientIT {
         Assertions.assertThat(responseBody).isNotNull();
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
     }
+
+    @Test
+    public void findClientWithValidPermissionExistingIdReturnUserCreatedStatus200() {
+        ClientResponseDTO responseBody = webTestClient.get()
+                .uri("/api/v1/clients/2")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ClientResponseDTO.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getId()).isEqualTo(2);
+        Assertions.assertThat(responseBody.getName()).isEqualTo("Marcio Rodrigues");
+        Assertions.assertThat(responseBody.getCpf()).isEqualTo("23764699027");
+    }
+
+    @Test
+    public void findClientWithInValidPermissionClientExistingIdReturnUserCreatedStatus403() {
+        ErrorMessage responseBody = webTestClient.get()
+                .uri("/api/v1/clients/2")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"teste21@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isEqualTo(403)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(403);
+    }
+
+    @Test
+    public void findClientWithValidPermissionAdminNonExistingIdReturnUserCreatedStatus404() {
+        ErrorMessage responseBody = webTestClient.get()
+                .uri("/api/v1/clients/1")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+    }
 }
