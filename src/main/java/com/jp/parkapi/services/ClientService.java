@@ -2,6 +2,7 @@ package com.jp.parkapi.services;
 
 import com.jp.parkapi.entities.Client;
 import com.jp.parkapi.exception.CpfUniqueViolationException;
+import com.jp.parkapi.exception.EntityNotFoundException;
 import com.jp.parkapi.repositories.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,9 @@ public class ClientService {
         }
     }
 
-
+    @Transactional(readOnly = true)
+    public Client findById(Long id) {
+        return clientRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Cliente '%s' não encontrado", id)));
+    }
 }

@@ -37,9 +37,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Usuário id {%s} não encontrado.", id)));
+                () -> new EntityNotFoundException(String.format("Usuário id '%s' não encontrado.", id)));
     }
-    @Transactional
+
+    @Transactional(readOnly = true)
     public User updatePassword(Long id, String senhaAtual, String novaSenha, String confirmaSenha) {
         if (!novaSenha.equals(confirmaSenha)) {
             throw new PasswordInvalidException(String.format("Nova senha é diferente da confirmação da senha"));

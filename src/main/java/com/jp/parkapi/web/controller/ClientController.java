@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Clients", description = "Contém as operações relativas aos recursos de cadastro, inserção e leitura de um cliente.")
 @RestController
@@ -53,5 +51,21 @@ public class ClientController {
         client.setUser(userService.findById(userDetails.getId())); //vinculando o usuário a partir do contexto do Spring Security
         clientService.insertClient(client);
         return ResponseEntity.status(HttpStatus.CREATED).body(ClientMapper.toDto(client)); //convertendo para ClientResponseDTO, recebendo um Client
+    }
+
+    @Operation(summary = "Recurso para recuperar um cliente pelo ID", description = "Requisição exige um Bearer Token. Acesso restrito a ADMIN",
+            responses = {
+            @ApiResponse(responseCode = "200", description = "Cliente recuperado com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "403", description = "Recurso não permitido ao perfil CLIENTE",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    })
+    @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ClientResponseDTO> findById(@PathVariable Long id){
+        Client client = clientService.findById(id);
+        return ResponseEntity.ok(ClientMapper.toDto(client));
     }
 }
