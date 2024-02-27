@@ -1,9 +1,6 @@
 package com.jp.parkapi.web.exception;
 
-import com.jp.parkapi.exception.CpfUniqueViolationException;
-import com.jp.parkapi.exception.EntityNotFoundException;
-import com.jp.parkapi.exception.PasswordInvalidException;
-import com.jp.parkapi.exception.UserNameUniqueViolationException;
+import com.jp.parkapi.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,8 +26,8 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, "Campos inválidos", bindingResult));
     }
 
-    @ExceptionHandler({UserNameUniqueViolationException.class, CpfUniqueViolationException.class})
-    public ResponseEntity<ErrorMessage> dataIntegrityViolationException(RuntimeException e, HttpServletRequest request) {
+    @ExceptionHandler({UserNameUniqueViolationException.class, CpfUniqueViolationException.class, CodeUniqueViolationException.class})
+    public ResponseEntity<ErrorMessage> uniqueViolationException(RuntimeException e, HttpServletRequest request) {
         log.error("Api Error - ", e);
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
