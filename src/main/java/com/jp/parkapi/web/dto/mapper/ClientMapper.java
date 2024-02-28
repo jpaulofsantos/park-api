@@ -20,7 +20,7 @@ public class ClientMapper {
         return modelMapper.map(client, ClientResponseDTO.class);
     }
 
-    public static Page<ClientResponseDTO> toClientPage(Page<Client> clientPage) {
+    public static Page<ClientResponseDTO> toParkingPage(Page<Client> clientPage) {
         return clientPage.map(client -> toDto(client));
     }
 }

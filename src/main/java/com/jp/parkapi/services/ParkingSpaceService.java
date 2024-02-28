@@ -6,6 +6,8 @@ import com.jp.parkapi.exception.EntityNotFoundException;
 import com.jp.parkapi.repositories.ParkingSpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,5 +31,10 @@ public class ParkingSpaceService {
         return parkingSpaceRepository.findByCode(code).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Vaga com o código '%s' não encontrada", code))
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ParkingSpace> findAllPaged(Pageable pageable) {
+        return parkingSpaceRepository.findAll(pageable);
     }
 }
