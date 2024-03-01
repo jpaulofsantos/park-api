@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.jp.parkapi.entities.ParkingSpace.StatusParkingSpace.FREE;
+
 @Service
 public class ParkingSpaceService {
 
@@ -36,5 +38,12 @@ public class ParkingSpaceService {
     @Transactional(readOnly = true)
     public Page<ParkingSpace> findAllPaged(Pageable pageable) {
         return parkingSpaceRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public ParkingSpace findByFreeParkingSpace() {
+        return parkingSpaceRepository.findFirstByStatus(FREE).orElseThrow(
+                () -> new EntityNotFoundException("Nenhuma vaga livre foi encontrada")
+        );
     }
 }
