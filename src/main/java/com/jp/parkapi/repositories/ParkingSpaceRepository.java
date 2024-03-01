@@ -10,5 +10,5 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpace, Long
     Optional<ParkingSpace> findByCode(String code);
 
 
-    Optional<ParkingSpace> findFirstByStatus(ParkingSpace.StatusParkingSpace statusParkingSpace);
+    Optional<ParkingSpace> findFirstByStatusSpace(ParkingSpace.StatusParkingSpace statusParkingSpace);
 }

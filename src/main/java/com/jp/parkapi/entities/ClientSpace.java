@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "clients_spaces")
+@Table(name = "clients_have_spaces")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -28,8 +28,8 @@ public class ClientSpace {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "recipt_number", nullable = false, unique = true, length = 15)
-    private String recipt;
+    @Column(name = "receipt_number", nullable = false, unique = true, length = 15)
+    private String receipt;
 
     @Column(name = "plate", nullable = false, length = 8)
     private String plate;
@@ -43,16 +43,16 @@ public class ClientSpace {
     @Column(name = "color", nullable = false, length = 45)
     private String color;
 
-    @Column(name = "entry_Date", nullable = false)
+    @Column(name = "entry_date", nullable = false)
     private LocalDateTime entryDate;
 
-    @Column(name = "exit_Date")
+    @Column(name = "exit_date")
     private LocalDateTime exitDate;
 
-    @Column(name = "value", columnDefinition = "decimal(7,2")
+    @Column(name = "value", columnDefinition = "decimal(7,2)")
     private BigDecimal value;
 
-    @Column(name = "discount", columnDefinition = "decimal(7,2")
+    @Column(name = "discount", columnDefinition = "decimal(7,2)")
     private BigDecimal discount;
 
     @ManyToOne
@@ -60,7 +60,7 @@ public class ClientSpace {
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "id_parkingSpace", nullable = false)
+    @JoinColumn(name = "id_parking_space", nullable = false)
     private ParkingSpace parkingSpace;
 
 

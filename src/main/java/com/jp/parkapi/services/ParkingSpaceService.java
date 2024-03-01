@@ -42,7 +42,7 @@ public class ParkingSpaceService {
 
     @Transactional(readOnly = true)
     public ParkingSpace findByFreeParkingSpace() {
-        return parkingSpaceRepository.findFirstByStatus(FREE).orElseThrow(
+        return parkingSpaceRepository.findFirstByStatusSpace(FREE).orElseThrow(
                 () -> new EntityNotFoundException("Nenhuma vaga livre foi encontrada")
         );
     }

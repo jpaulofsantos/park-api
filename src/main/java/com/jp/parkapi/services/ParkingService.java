@@ -30,7 +30,7 @@ public class ParkingService {
 
         clientSpace.setParkingSpace(parkingSpace);
         clientSpace.setEntryDate(LocalDateTime.now());
-        clientSpace.setRecipt(ParkingUtils.createReceipt());
+        clientSpace.setReceipt(ParkingUtils.createReceipt());
 
         return clientSpaceService.insertClientSpace(clientSpace);
     }
