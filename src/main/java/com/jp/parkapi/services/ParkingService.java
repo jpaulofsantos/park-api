@@ -22,13 +22,13 @@ public class ParkingService {
 
     @Transactional
     public ClientSpace checkIn(ClientSpace clientSpace) {
-        Client client = clientService.findByCpf(clientSpace.getClient().getCpf());
-        clientSpace.setClient(client); //substituindo o cliente que tinha somente o cpf, por um cliente completo
+        Client client = clientService.findByCpf(clientSpace.getClient().getCpf()); //pegando as infos do cliente pelo cpf recebido no clientSpace vindo do Controller
+        clientSpace.setClient(client); //após a busca pelo cliente, substituimos este cliente que tinha somente o cpf (vindo do DTO), por um cliente completo, com as infos do BD
 
-        ParkingSpace parkingSpace = parkingSpaceService.findByFreeParkingSpace();
-        parkingSpace.setStatusSpace(ParkingSpace.StatusParkingSpace.OCCUPIED);
+        ParkingSpace parkingSpace = parkingSpaceService.findByFreeParkingSpace(); //busca vaga livre
+        parkingSpace.setStatusSpace(ParkingSpace.StatusParkingSpace.OCCUPIED); //seta a vaga como ocupada
 
-        clientSpace.setParkingSpace(parkingSpace);
+        clientSpace.setParkingSpace(parkingSpace); //seta a vaga
         clientSpace.setEntryDate(LocalDateTime.now());
         clientSpace.setReceipt(ParkingUtils.createReceipt());
 
