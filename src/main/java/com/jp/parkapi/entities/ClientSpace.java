@@ -49,7 +49,7 @@ public class ClientSpace {
     @Column(name = "exit_date")
     private LocalDateTime exitDate;
 
-    @Column(name = "value", columnDefinition = "decimal(7,2)")
+    @Column(name = "total_value", columnDefinition = "decimal(7,2)")
     private BigDecimal value;
 
     @Column(name = "discount", columnDefinition = "decimal(7,2)")
