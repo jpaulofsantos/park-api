@@ -41,4 +41,64 @@ public class ParkingIT {
                 .jsonPath("entryDate").exists()
                 .jsonPath("parkingSpaceCode").exists();
     }
+
+    @Test
+    public void createCheckInWithClientCredentialsReturnErrorStatus403() {
+        ParkingCreateDTO parkingCreateDTO = ParkingCreateDTO.builder()
+                .plate("AED-2127").manufacturer("FIAT").model("PALIO").color("AZUL").clientCpf("23764699027")
+                .build();
+
+        testClient.post()
+                .uri("/api/v1/parkings/check-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "teste21@gmail.com", "123456"))
+                .bodyValue(parkingCreateDTO)
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody()
+                .jsonPath("status").isEqualTo("403")
+                .jsonPath("path").isEqualTo("/api/v1/parkings/check-in")
+                .jsonPath("method").isEqualTo("POST");
+    }
+
+    @Test
+    public void createCheckInWithInvalidDataReturnErrorStatus422() {
+        ParkingCreateDTO parkingCreateDTO = ParkingCreateDTO.builder()
+                .plate("").manufacturer("").model("").color("").clientCpf("237646990274")
+                .build();
+
+        testClient.post()
+                .uri("/api/v1/parkings/check-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "admin@gmail.com", "123456"))
+                .bodyValue(parkingCreateDTO)
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody()
+                .jsonPath("status").isEqualTo("422")
+                .jsonPath("path").isEqualTo("/api/v1/parkings/check-in")
+                .jsonPath("method").isEqualTo("POST");
+    }
+
+    @Sql(scripts = "/sql/users/parkings/parkings.insert.occupiedspaces.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/users/parkings/parkings.delete.occupiedspaces.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Test
+    public void createCheckInWithInvalidCpfReturnErrorStatus404() {
+        ParkingCreateDTO parkingCreateDTO = ParkingCreateDTO.builder()
+                .plate("AED-2127").manufacturer("VW").model("GOL").color("BRANCO").clientCpf("23764699027")
+                .build();
+
+        testClient.post()
+                .uri("/api/v1/parkings/check-in")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "admin@gmail.com", "123456"))
+                .bodyValue(parkingCreateDTO)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("status").isEqualTo("404")
+                .jsonPath("path").isEqualTo("/api/v1/parkings/check-in")
+                .jsonPath("method").isEqualTo("POST");
+    }
+
 }
