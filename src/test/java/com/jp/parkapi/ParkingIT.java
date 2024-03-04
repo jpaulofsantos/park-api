@@ -153,4 +153,53 @@ public class ParkingIT {
                 .jsonPath("method").isEqualTo("GET");
     }
 
+    @Test
+    public void createCheckOutWithValidReceiptReturnStatusOk() {
+
+        testClient.put()
+                .uri("/api/v1/parkings/check-out/{receipt}", "20240303-114646")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("manufacturer").isEqualTo("VW")
+                .jsonPath("model").isEqualTo("T-CROSS")
+                .jsonPath("color").isEqualTo("BRANCO")
+                .jsonPath("entryDate").isEqualTo("2024-03-03 11:46:46")
+                .jsonPath("clientCpf").isEqualTo("30603384005")
+                .jsonPath("parkingSpaceCode").isEqualTo("AD10")
+                .jsonPath("receipt").isEqualTo("20240303-114646")
+                .jsonPath("exitDate").exists()
+                .jsonPath("value").exists()
+                .jsonPath("discount").exists();
+
+    }
+
+    @Test
+    public void createCheckOutWithInValidReceiptReturnStatus404() {
+
+        testClient.put()
+                .uri("/api/v1/parkings/check-out/{receipt}", "20240303-114647")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "admin@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("status").isEqualTo("404")
+                .jsonPath("path").isEqualTo("/api/v1/parkings/check-out/20240303-114647")
+                .jsonPath("method").isEqualTo("PUT");
+    }
+
+    @Test
+    public void createCheckOutWithRoleClientReturnStatus403() {
+
+        testClient.put()
+                .uri("/api/v1/parkings/check-out/{receipt}", "20240303-114646")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "teste21@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody()
+                .jsonPath("status").isEqualTo("403")
+                .jsonPath("path").isEqualTo("/api/v1/parkings/check-out/20240303-114646")
+                .jsonPath("method").isEqualTo("PUT");
+    }
 }

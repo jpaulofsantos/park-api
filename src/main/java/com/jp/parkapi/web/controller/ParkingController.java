@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -73,17 +75,20 @@ public class ParkingController {
         return ResponseEntity.ok().body(parkingResponseDTO);
     }
 
-    @Operation(summary = "Localizar um veículo estacionado", description = "Recurso para retornar um veículo estacionado " +
-            "pelo nº do recibo. Requisição exige uso de um bearer token.",
+    @Operation(summary = "Operação para localizar um veículo estacionado", description = "Recurso para retornar um veículo estacionado " +
+            "pelo nº do recibo. Requisição exige uso de um bearer token. Acesso restrito a ADMIN",
             security = @SecurityRequirement(name = "security"),
             parameters = {
-                    @Parameter(in = PATH, name = "recibo", description = "Número do rebibo gerado pelo check-in")
+                    @Parameter(in = PATH, name = "receipt", description = "Número do rebibo gerado pelo check-in")
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "Recurso localizado com sucesso",
                             content = @Content(mediaType = " application/json;charset=UTF-8",
                                     schema = @Schema(implementation = ParkingResponseDTO.class))),
-                    @ApiResponse(responseCode = "404", description = "Número do recibo não encontrado.",
+                    @ApiResponse(responseCode = "404", description = "Número do recibo inexistente ou o veículo já passou pelo check-out.",
+                            content = @Content(mediaType = " application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "Recurso não permitido ao perfil de cliente.",
                             content = @Content(mediaType = " application/json;charset=UTF-8",
                                     schema = @Schema(implementation = ErrorMessage.class)))
             })
@@ -92,6 +97,14 @@ public class ParkingController {
     public ResponseEntity<ParkingResponseDTO> checkOut(@PathVariable String receipt) {
         ClientSpace clientSpace = parkingService.checkOut(receipt);
         ParkingResponseDTO parkingResponseDTO = ClientSpaceMapper.toDto(clientSpace);
+        return ResponseEntity.ok().body(parkingResponseDTO);
+    }
+
+    @GetMapping(value = "/check-in/search/{cpf}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<ParkingResponseDTO>> findParkingsByClientCpf(@PathVariable String cpf, Pageable pageable) {
+        Page<ClientSpace> clientSpace = parkingService.findByClientCpf(cpf, pageable);
+        Page<ParkingResponseDTO> parkingResponseDTO = ClientSpaceMapper.toDtoPage(clientSpace);
         return ResponseEntity.ok().body(parkingResponseDTO);
     }
 }

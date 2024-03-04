@@ -5,6 +5,8 @@ import com.jp.parkapi.entities.ClientSpace;
 import com.jp.parkapi.entities.ParkingSpace;
 import com.jp.parkapi.util.ParkingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,5 +58,9 @@ public class ParkingService {
         clientSpace.getParkingSpace().setStatusSpace(ParkingSpace.StatusParkingSpace.FREE);
 
         return clientSpaceService.insertClientSpace(clientSpace);
+    }
+
+    public Page<ClientSpace> findByClientCpf(String cpf, Pageable pageable) {
+        return clientSpaceService.findCheckInByClientCpf(cpf, pageable);
     }
 }

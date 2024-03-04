@@ -1,8 +1,10 @@
 package com.jp.parkapi.web.dto.mapper;
 
 import com.jp.parkapi.entities.ClientSpace;
+import com.jp.parkapi.entities.ParkingSpace;
 import com.jp.parkapi.web.dto.ParkingCreateDTO;
 import com.jp.parkapi.web.dto.ParkingResponseDTO;
+import com.jp.parkapi.web.dto.ParkingSpaceResponseDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +24,10 @@ public class ClientSpaceMapper {
 
     public static Page<ParkingResponseDTO> toParkingPage(Page<ClientSpace> clientSpacePage) {
         return clientSpacePage.map(clienteSpace -> toDto(clienteSpace));
+    }
+
+    public static Page<ParkingResponseDTO> toDtoPage(Page<ClientSpace> clientSpacePage) {
+        return clientSpacePage.map(space -> toDto(space));
     }
 
 }

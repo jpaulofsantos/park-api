@@ -1,9 +1,9 @@
 package com.jp.parkapi.repositories;
 
 import com.jp.parkapi.entities.ClientSpace;
-import com.jp.parkapi.entities.ParkingSpace;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
@@ -13,4 +13,6 @@ public interface ClientSpaceRepository extends JpaRepository<ClientSpace, Long> 
     Optional<ClientSpace> findByReceiptAndExitDateIsNull(String receipt);
 
     long countByClientCpfAndExitDateIsNotNull(String cpf);
+
+    Optional<Page<ClientSpace>> findByClientCpf(String cpf, Pageable pageable);
 }
