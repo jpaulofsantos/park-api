@@ -8,6 +8,7 @@ import com.jp.parkapi.web.dto.mapper.ClientMapper;
 import com.jp.parkapi.web.dto.mapper.ClientSpaceMapper;
 import com.jp.parkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,13 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 @Tag(name = "Parkings", description = "Contém as operações de registros de entrada e saída de um veículo no estacionamento.")
 @RestController
@@ -63,5 +63,35 @@ public class ParkingController {
                 .buildAndExpand(clientSpace.getReceipt())
                 .toUri();
         return ResponseEntity.created(location).body(parkingResponseDTO);
+    }
+
+    @GetMapping(value = "/check-in/{receipt}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
+    public ResponseEntity<ParkingResponseDTO> findByReceipt(@PathVariable String receipt) {
+        ClientSpace clientSpace = parkingService.findCheckInByCode(receipt);
+        ParkingResponseDTO parkingResponseDTO = ClientSpaceMapper.toDto(clientSpace);
+        return ResponseEntity.ok().body(parkingResponseDTO);
+    }
+
+    @Operation(summary = "Localizar um veículo estacionado", description = "Recurso para retornar um veículo estacionado " +
+            "pelo nº do recibo. Requisição exige uso de um bearer token.",
+            security = @SecurityRequirement(name = "security"),
+            parameters = {
+                    @Parameter(in = PATH, name = "recibo", description = "Número do rebibo gerado pelo check-in")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recurso localizado com sucesso",
+                            content = @Content(mediaType = " application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ParkingResponseDTO.class))),
+                    @ApiResponse(responseCode = "404", description = "Número do recibo não encontrado.",
+                            content = @Content(mediaType = " application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            })
+    @PutMapping(value = "/check-out/{receipt}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ParkingResponseDTO> checkOut(@PathVariable String receipt) {
+        ClientSpace clientSpace = parkingService.checkOut(receipt);
+        ParkingResponseDTO parkingResponseDTO = ClientSpaceMapper.toDto(clientSpace);
+        return ResponseEntity.ok().body(parkingResponseDTO);
     }
 }

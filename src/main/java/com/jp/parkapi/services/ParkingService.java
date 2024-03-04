@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -31,6 +32,28 @@ public class ParkingService {
         clientSpace.setParkingSpace(parkingSpace); //seta a vaga
         clientSpace.setEntryDate(LocalDateTime.now());
         clientSpace.setReceipt(ParkingUtils.createReceipt());
+
+        return clientSpaceService.insertClientSpace(clientSpace);
+    }
+
+    @Transactional
+    public ClientSpace findCheckInByCode(String code) {
+        return clientSpaceService.findCheckInByReceiptNumberAndExitDateIsNull(code);
+    }
+
+    @Transactional
+    public ClientSpace checkOut(String receipt) {
+        ClientSpace clientSpace = findCheckInByCode(receipt);
+        LocalDateTime exitDate = LocalDateTime.now();
+
+        BigDecimal value = ParkingUtils.calculateCost(clientSpace.getEntryDate(), exitDate);
+        clientSpace.setValue(value);
+
+        long totalTimes = clientSpaceService.getTotalTimesParkingComplete(clientSpace.getClient().getCpf());
+        clientSpace.setDiscount(ParkingUtils.calculateDiscount(clientSpace.getValue(), totalTimes));
+
+        clientSpace.setExitDate(exitDate);
+        clientSpace.getParkingSpace().setStatusSpace(ParkingSpace.StatusParkingSpace.FREE);
 
         return clientSpaceService.insertClientSpace(clientSpace);
     }

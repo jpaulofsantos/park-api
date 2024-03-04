@@ -19,6 +19,6 @@ insert into spaces (id, code, status) values (300, 'AF12', 'OCCUPIED');
 insert into spaces (id, code, status) values (400, 'AJ13', 'FREE');
 insert into spaces (id, code, status) values (500, 'AK14', 'FREE');
 
-insert into clients_have_spaces (receipt_number, plate, manufacturer, model, color, entry_date, id_client, id_parking_space) values ('20240303-114646', 'OUG-2020', 'VW', 'T-CROSS', 'Branco', '2024-03-03 11:46:46', 3, 100);
+insert into clients_have_spaces (receipt_number, plate, manufacturer, model, color, entry_date, id_client, id_parking_space) values ('20240303-114646', 'OUG-2020', 'VW', 'T-CROSS', 'BRANCO', '2024-03-03 11:46:46', 3, 100);
 insert into clients_have_spaces (receipt_number, plate, manufacturer, model, color, entry_date, id_client, id_parking_space) values ('20240304-124249', 'OUG-2021', 'VW', 'GOL', 'PRETO', '2024-03-04 12:42:49', 2, 200);
 insert into clients_have_spaces (receipt_number, plate, manufacturer, model, color, entry_date, id_client, id_parking_space) values ('20240305-134041', 'OUG-2022', 'VW', 'AMAROK', 'CINZA', '2024-03-05 13:40:41', 3, 300);
