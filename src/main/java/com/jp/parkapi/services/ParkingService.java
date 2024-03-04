@@ -3,6 +3,7 @@ package com.jp.parkapi.services;
 import com.jp.parkapi.entities.Client;
 import com.jp.parkapi.entities.ClientSpace;
 import com.jp.parkapi.entities.ParkingSpace;
+import com.jp.parkapi.repositories.projection.ClientSpaceProjection;
 import com.jp.parkapi.util.ParkingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,7 +61,13 @@ public class ParkingService {
         return clientSpaceService.insertClientSpace(clientSpace);
     }
 
-    public Page<ClientSpace> findByClientCpf(String cpf, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<ClientSpaceProjection> findByClientCpf(String cpf, Pageable pageable) {
         return clientSpaceService.findCheckInByClientCpf(cpf, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClientSpaceProjection> findByByUserId(Long id, Pageable pageable) {
+        return  clientSpaceService.findByClientId(id, pageable);
     }
 }
