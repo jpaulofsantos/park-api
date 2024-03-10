@@ -1,8 +1,11 @@
 package com.jp.parkapi.web.controller;
 
+import com.jp.parkapi.entities.Client;
 import com.jp.parkapi.entities.ClientSpace;
 import com.jp.parkapi.jwt.JwtUserDetails;
 import com.jp.parkapi.repositories.projection.ClientSpaceProjection;
+import com.jp.parkapi.services.ClientService;
+import com.jp.parkapi.services.JasperService;
 import com.jp.parkapi.services.ParkingService;
 import com.jp.parkapi.web.dto.PageableDTO;
 import com.jp.parkapi.web.dto.ParkingCreateDTO;
@@ -20,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,12 +31,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
@@ -45,6 +51,11 @@ public class ParkingController {
 
     @Autowired
     ParkingService parkingService;
+    @Autowired
+    ClientService clientService;
+
+    @Autowired
+    JasperService jasperService;
 
     @Operation(summary = "Operação de check-in", description = "Recurso para dare entrada em um veículo no estacionamento. Requisição exige um Bearer Token. Acesso restrito a ADMIN ",
             security = @SecurityRequirement(name = "security"),
@@ -171,10 +182,25 @@ public class ParkingController {
             })
     @GetMapping
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<PageableDTO> findParkingsByClientCpffromClient(@AuthenticationPrincipal JwtUserDetails user,
+    public ResponseEntity<PageableDTO> findParkingsByClientCpfFromClient(@AuthenticationPrincipal JwtUserDetails user,
                                                                @PageableDefault(size = 5, sort = "entryDate", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<ClientSpaceProjection> projection = parkingService.findByByUserId(user.getId(), pageable);
         PageableDTO pageableDTO = PageableMapper.toDto(projection);
         return ResponseEntity.ok().body(pageableDTO);
+    }
+
+    @GetMapping(value = "/report")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<Void> getReport(HttpServletResponse response, @AuthenticationPrincipal JwtUserDetails user) throws IOException {
+        String cpf = clientService.findClientByUserId(user.getId()).getCpf();
+        jasperService.addParms("CPF", cpf);
+
+        byte[] bytes = jasperService.createPdf();
+
+        response.setContentType(MediaType.APPLICATION_PDF_VALUE);
+        response.setHeader("Content-disposition", "inLine; filename=" + System.currentTimeMillis() + ".pdf");
+        response.getOutputStream().write(bytes);
+
+        return ResponseEntity.ok().build();
     }
 }

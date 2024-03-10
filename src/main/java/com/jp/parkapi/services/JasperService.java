@@ -27,7 +27,6 @@ public class JasperService {
 
     @Autowired
     ResourceLoader resourceLoader; //ler o recursos do projeto
-
     @Autowired
     DataSource dataSource; //fornece o objeto de conexão com banco de dados (refere-se ao datasource do application.properties
 
@@ -37,7 +36,7 @@ public class JasperService {
     private static final String JASPER_DIRETORIO = "classpath:reports/";
 
     public void addParms(String key, Object value) {
-        params.put("IMAGEM_DIRETORIO", JASPER_DIRETORIO);
+        params.put("IMAGE_DIR", JASPER_DIRETORIO);
         params.put("REPORT_LOCALE", new Locale("pt", "BR"));
         params.put(key, value);
     }
