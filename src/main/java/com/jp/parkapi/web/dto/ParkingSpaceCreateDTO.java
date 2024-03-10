@@ -14,12 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ParkingSpaceCreateDTO {
 
-    @NotBlank
-    @Size(min = 4, max = 4)
+    @NotBlank(message = "{NotBlank.parkingCreateDTO.code}")
+    @Size(min = 4, max = 4, message = "{Size.parkingCreateDTO.code}")
     private String code;
 
-    @NotBlank
-    @Pattern(regexp = "FREE|OCCUPIED")
+    @NotBlank(message = "{NotBlank.parkingCreateDTO.status}")
+    @Pattern(regexp = "FREE|OCCUPIED", message = "{Pattern.parkingCreateDTO.status}")
     private String status;
 
 }
